@@ -1,0 +1,37 @@
+{
+    "name":"JSON-Diff",
+    "slug":"jsondiff",
+    "version":"2.4.0",
+    "author":"Scott Steinbeck <scottsteinbeck@gmail.com>",
+    "location":"https://github.com/scottsteinbeck/jsondiff",
+    "Documentation":"https://github.com/scottsteinbeck/jsondiff",
+    "Repository":{
+        "type":"git",
+        "URL":"https://github.com/scottsteinbeck/jsondiff"
+    },
+    "Bugs":"https://github.com/scottsteinbeck/jsondiff/issues",
+    "shortDescription":"An ColdFusion utility for checking if 2 JSON objects have differences",
+    "keywords":[
+        "json diff",
+        "json-diff",
+        "json differences"
+    ],
+    "private":"false",
+    "engines":[
+        {
+            "type":"lucee",
+            "version":">=4.5.x"
+        }
+    ],
+    "Contributors":[
+        "Scott Steinbeck <scottsteinbeck@gmail.com>"
+    ],
+    "DevDependencies":{
+        "testbox":"^4.2.1+400"
+    },
+    "installPaths":{
+        "testbox":"testbox/"
+    },
+    "type":"modules",
+    "dependencies":{}
+}
