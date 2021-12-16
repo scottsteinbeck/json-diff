@@ -4,16 +4,17 @@ An ColdFusion utility for checking if 2 JSON objects have differences
 
 ## Installation
 ```javascript
-property name="jsondiff" inject="jsondiff"; //wirebox
+property name="JSONDiff" inject="JSONDiff"; //wirebox
 
-JMESPath = new path.to.the.cfc.jsondiff(); //Instantiate Object
+JSONDiff = new path.to.the.cfc.JSONDiff(); //Instantiate Object
 
 ```
 ## Basic Usage
-Call `jsondiff.diff` with a valid JMESPath search expression and data to search. It will return the extracted values.
+### Diff
+Call `JSONDiff.diff` to get a detailed list of changes made between the JSON objects.
 
 ```javascript
-    jsondiff.diff(
+    JSONDiff.diff(
         { test: ["test", { test: true }] },
         { test: ["test", { test: false }] }
     ))
@@ -28,11 +29,11 @@ Call `jsondiff.diff` with a valid JMESPath search expression and data to search.
         },
     ]
 ```
-
-Call `jsondiff.isSame` with a valid JMESPath search expression and data to search. It will return the extracted values.
+### isSame
+Call `JSONDiff.isSame` to get a simple boolean `true` or `false`.
 
 ```javascript
-    jsondiff.isSame(
+    JSONDiff.isSame(
         { test: ["test", { test: true }] },
         { test: ["test", { test: false }] }
     ))
