@@ -9,7 +9,7 @@ property name="JSONDiff" inject="JSONDiff"; //wirebox
 JSONDiff = new path.to.the.cfc.JSONDiff(); //Instantiate Object
 
 ```
-## Basic Usage
+## Usage
 ### Diff
 Call `JSONDiff.diff` to get a detailed list of changes made between the JSON objects.
 
