@@ -137,7 +137,7 @@ component singleton displayname="Lexer" {
 						"type": "ADD",
 						"path": [key2],
 						"old": "",
-						"new": second[key2],
+						"new": second[key2]
 					});
                 }
             }
