@@ -1,4 +1,4 @@
-component singleton displayname="Lexer" {
+component singleton {
 
 	function isSame(first, second) {
         if(isNull(first) && isNull(second)) return true;
@@ -61,7 +61,7 @@ component singleton displayname="Lexer" {
 		} else if (isArray(first) && isArray(second)) {
 			for (var i = 1; i <= first.len(); i++) {
 				var path = i;
-				
+
 				if(second.len() < i){
 					diffs.append({
 						"path": [path],
@@ -70,7 +70,7 @@ component singleton displayname="Lexer" {
 						"new": ""
 					});
 				} else if(
-					getMetadata(first[i]).getName() != getMetadata(second[i]).getName() 
+					getMetadata(first[i]).getName() != getMetadata(second[i]).getName()
 					|| (isSimpleValue(first[i]) && isSimpleValue(second[i]) && first[i] != second[i])
 				){
 					diffs.append({
@@ -82,7 +82,7 @@ component singleton displayname="Lexer" {
 				} else {
 					var nestedDiffs = diff(first[i], second[i]);
 					nestedDiffs = nestedDiffs.each((difference) => {
-						difference.path.unshift(path);
+						difference.path.prepend(path);
 						diffs.append(difference);
 					});
 				}
@@ -101,6 +101,7 @@ component singleton displayname="Lexer" {
             var keysSeen = {};
             for (var key in first) {
 				var path = key;
+				if(!first.keyExists(key)) first[key] = "";
 				if(!second.keyExists(key)){
 					diffs.append({
 						"path": [path],
@@ -109,7 +110,7 @@ component singleton displayname="Lexer" {
 						"new": ""
 					});
 				} else if(
-					getMetadata(first[key]).getName() != getMetadata(second[key]).getName() 
+					getMetadata(first[key]).getName() != getMetadata(second[key]).getName()
 					|| (isSimpleValue(first[key]) && isSimpleValue(second[key]) && first[key] != second[key])
 				){
 					diffs.append({
@@ -122,7 +123,7 @@ component singleton displayname="Lexer" {
 					if (structKeyExists(first, key) && structKeyExists(second,key)) {
 						var nestedDiffs = diff(first[key], second[key]);
 						nestedDiffs = nestedDiffs.each((difference) => {
-							difference.path.unshift(path);
+							difference.path.prepend(path);
 							diffs.append(difference);
 						})
 					}
