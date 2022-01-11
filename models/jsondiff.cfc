@@ -194,7 +194,7 @@ component singleton {
 				if(ignoreKeys.find(key2) > 0) {
 					continue;
 				};
-                if (!structKeyExists(second, key2) || !structKeyExists(keysSeen,key2)) {
+                if (structKeyExists(second, key2) && !structKeyExists(keysSeen,key2)) {
                     diffs.append({
 						"type": "ADD",
 						"path": [key2],
