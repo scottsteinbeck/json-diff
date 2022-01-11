@@ -30,7 +30,7 @@ Call `JSONDiff.diff` to get a detailed list of changes made between the JSON obj
     ]
 ```
 ### Diff with ignored keys
-Call `JSONDiff.diff` to get a detailed list of changes made between the JSON objects.
+If you provide an array of ignored keys, the diff function will skip comparison on those keys
 
 ```javascript
     // JSONDiff.diff(origData, newData [, ignored array of keys])
