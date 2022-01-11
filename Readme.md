@@ -29,6 +29,28 @@ Call `JSONDiff.diff` to get a detailed list of changes made between the JSON obj
         },
     ]
 ```
+### Diff with ignored keys
+Call `JSONDiff.diff` to get a detailed list of changes made between the JSON objects.
+
+```javascript
+    // JSONDiff.diff(origData, newData [, ignored array of keys])
+    JSONDiff.diff(
+        { test: ["test", { test: true }] },
+        { test: ["test", { test: false }], dirty:true }
+        ['dirty']
+    ))
+
+    //Result
+    [
+        {
+            "type": "CHANGE",
+            "path": ["test", 2, "test"],
+            "old": true,
+            "new": false,
+        },
+    ]
+```
+
 ### isSame
 Call `JSONDiff.isSame` to get a simple boolean `true` or `false`.
 
