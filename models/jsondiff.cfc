@@ -1,15 +1,23 @@
 component singleton {
 
+	function numericCheck(value){
+        if (
+            getMetadata(value).getName() == 'java.lang.Double' ||
+            getMetadata(value).getName() == 'java.lang.Integer'
+        ) return true;
+		return false
+	}
+
 	function isSame(first, second) {
 
         if(isNull(first) && isNull(second)) return true;
         if(isNull(first) || isNull(second)) return false;
         if(isSimpleValue(first) && isSimpleValue(second) ){
-			if(isNumeric(first) && isNumeric(second) &&  precisionEvaluate(first - second) != 0 ){
-				return false;
-			} else if(first != second){
-				return false;
-			}
+				if(numericCheck(first) && numericCheck(second) &&  precisionEvaluate(first - second) != 0 ){
+					return false;
+				} else if(first != second){
+					return false;
+				}
 			return true;
         }
 
@@ -69,8 +77,8 @@ component singleton {
 			});
 		} else if(isSimpleValue(first) && isSimpleValue(second)) {
 			if(
-				isNumeric(first)
-				&& isNumeric(second)
+				numericCheck(first)
+				&& numericCheck(second)
 			){
 				if( precisionEvaluate(first - second) != 0) {
 
@@ -102,8 +110,8 @@ component singleton {
 					});
 				} else if(isSimpleValue(first[i]) && isSimpleValue(second[i])) {
 					if(
-						isNumeric(first[i])
-						&& isNumeric(second[i])
+						numericCheck(first[i])
+						&& numericCheck(second[i])
 					){
 						if( precisionEvaluate(first[i] - second[i]) != 0) {
 
@@ -157,8 +165,8 @@ component singleton {
 					});
 				} else if(isSimpleValue(first[key]) && isSimpleValue(second[key])) {
 					if(
-						isNumeric(first[key])
-						&& isNumeric(second[key])
+						numericCheck(first[key])
+						&& numericCheck(second[key])
 					){
 						if( precisionEvaluate(first[key] - second[key]) != 0) {
 

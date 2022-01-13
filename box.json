@@ -1,7 +1,7 @@
 {
     "name":"JSON-Diff",
     "slug":"jsondiff",
-    "version":"1.0.3",
+    "version":"1.0.4",
     "author":"Scott Steinbeck <scottsteinbeck@gmail.com>",
     "Documentation":"https://github.com/scottsteinbeck/json-diff",
     "Repository":{
