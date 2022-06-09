@@ -61,6 +61,52 @@ component singleton {
         }
         return false;
     }
+
+
+	function diffByKey(array first = [], array second = [], required string uniqueKey,  array ignoreKeys = []) {
+		var data1 = first.reduce((acc,x)=>{acc[x[uniqueKey]] = x; return acc},{});
+		var data2 = second.reduce((acc,x)=>{acc[x[uniqueKey]] = x; return acc},{});
+		var diffData = diff(data1, data2, ignoreKeys);
+		var groupedDiff = diffData.reduce((acc,x)=>{
+			if(x.type == 'add'){
+				if(!acc.keyExists(x.type)) acc[x.type] = []; 
+				acc[x.type].append({
+					'key': x.new[uniqueKey],
+					'data': x.new
+				});
+			} else if(x.type == 'remove'){
+				if(!acc.keyExists(x.type)) acc[x.type] = []; 
+				acc[x.type].append({
+					'key': x.old[uniqueKey],
+					'data': x.old
+				});
+			} else if(x.type == 'change'){
+				if(!acc.keyExists(x.type)) acc[x.type] = {}; 
+				if(!acc[x.type].keyExists(x.path[1])) acc[x.type][x.path[1]] = []; 
+				var pathRest =  arraySlice(x.path, 2);
+				acc[x.type][x.path[1]].append({
+					'key': pathRest[1],
+					'path': pathRest,
+					'new': x.new,
+					'old': x.old
+				});
+			}
+			return acc
+		},{});
+		groupedDiff.update = groupedDiff.change.reduce((acc,key,value)=>{
+			acc.push({
+				'key':key,
+				'oldData': data1[key],
+				'newData': data2[key],
+				'changes': value
+			})
+			return acc;
+		},[]);
+		groupedDiff.delete('change');
+		return groupedDiff;
+	}
+	
+
 	// Now check that there aren't any keys in second that weren't
 	function diff(any first = "", any second = "", array ignoreKeys = []) {
 
