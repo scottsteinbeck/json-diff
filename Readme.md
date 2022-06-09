@@ -1,44 +1,72 @@
 # JSON Diff
 An ColdFusion utility for checking if 2 JSON objects have differences
 
+*Important:* JSON Objects NOT Serialized JSON Strings (Please de-serialize them first)
+
+## License
+
+Apache License, Version 2.0.
+
+## System Requirements
+
+- Lucee 5+
+- Adobe ColdFusion 2016 (Deprecated)
+- Adobe ColdFusion 2018+
+
+## Installation
+
+Use CommandBox CLI to install:
+
+```bash
+box install jsondiff
+```
 
 ## Installation
 ```javascript
 property name="JSONDiff" inject="JSONDiff"; //wirebox
-
+/* or (dot) folder path to the cfc */
 JSONDiff = new path.to.the.cfc.JSONDiff(); //Instantiate Object
-
 ```
-## Usage
-### Diff
-Call `JSONDiff.diff` to get a detailed list of changes made between the JSON objects.
-
+## Methods
 ```javascript
-    JSONDiff.diff(
-        { test: ["test", { test: true }] },
-        { test: ["test", { test: false }] }
-    ))
-
-    //Result
-    [
-        {
-            "type": "CHANGE",
-            "path": ["test", 2, "test"],
-            "old": true,
-            "new": false,
-        },
-    ]
+JSONDiff.diff(origData, newData [, ignored array of keys])
+JSONDiff.diffByKey(origData, newData, uniqueKey [, ignored array of keys])
+JSONDiff.isSame(origData, newData [, ignored array of keys])
 ```
-### Diff with ignored keys
-If you provide an array of ignored keys, the diff function will skip comparison on those keys
+
+## Usage
+---
+### Diff (origData, newData [, ignored array of keys])
+#### Call `JSONDiff.diff` to get a detailed list of changes made between the JSON objects.
 
 ```javascript
     // JSONDiff.diff(origData, newData [, ignored array of keys])
     JSONDiff.diff(
         { test: ["test", { test: true }] },
+        { test: ["test", { test: false }] }
+    ));
+
+    //Result
+    [
+        {
+            "type": "CHANGE",
+            "path": ["test", 2, "test"],
+            "old": true,
+            "new": false,
+        },
+    ]
+
+    /*
+        Diff with ignored keys
+        If you provide an array of ignored keys, the diff function will 
+        skip comparison on those keys
+    */
+
+    JSONDiff.diff(
+        { test: ["test", { test: true }] },
         { test: ["test", { test: false }], dirty:true }
-        ['dirty']
-    ))
+        ['dirty'] //Ignored Keys
+    ));
 
     //Result
     [
@@ -51,8 +79,57 @@ If you provide an array of ignored keys, the diff function will skip comparison 
     ]
 ```
 
-### isSame
-Call `JSONDiff.isSame` to get a simple boolean `true` or `false`.
+### DiffByKey (origData, newData, uniqueKey [, ignored array of keys])
+#### Call `JSONDiff.diffByKey` to get a detailed list of changes based on a unique key
+Great for comparing 2 arrays of structs
+
+```javascript
+    // JSONDiff.diffByKey(origData, newData, uniqueKey [, ignored array of keys])
+
+    JSONDiff.diffByKey(
+        [
+            {'id':26,'x':480,'y':0},
+            {'id':28,'x':482,'y':10},
+            {'id':32,'x':480,'y':12}
+        ],
+        [
+            {'id':25,'x':10,'y':0},
+            {'id':65,'x':298,'y':0},
+            {'id':32,'x':415,'y':2}
+        ],
+        'id'
+    );
+
+    //Result
+    {
+        "REMOVE": [{
+            "data": {"y": 0,"x": 298,"id": 65 },
+            "key": 65
+        }, {
+            "data": { "y": 0, "x": 10, "id": 25 },
+            "key": 25
+        }],
+        "UPDATE": [{
+            "changes": [
+                { "path": ["y"], "key": "y", "old": 2, "new": 12 }, 
+                { "path": ["x"], "key": "x", "old": 415, "new": 480 }
+            ],
+            "key": "32",
+            "oldData": { "y": 2, "x": 415, "id": 32 },
+            "newData": { "y": 12, "x": 480, "id": 32  }
+        }],
+        "ADD": [{
+            "data": { "y": 10, "x": 482, "id": 28 },
+            "key": 28
+        }, {
+            "data": { "y": 0, "x": 480, "id": 26 },
+            "key": 26
+        }]
+    }
+```
+
+### isSame (origData, newData [, ignored array of keys])
+#### Call `JSONDiff.isSame` to get a simple boolean `true` or `false`.
 
 ```javascript
     JSONDiff.isSame(
