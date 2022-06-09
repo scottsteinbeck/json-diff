@@ -69,19 +69,16 @@ component singleton {
 		var diffData = diff(data1, data2, ignoreKeys);
 		var groupedDiff = diffData.reduce((acc,x)=>{
 			if(x.type == 'add'){
-				if(!acc.keyExists(x.type)) acc[x.type] = []; 
 				acc[x.type].append({
 					'key': x.new[uniqueKey],
 					'data': x.new
 				});
 			} else if(x.type == 'remove'){
-				if(!acc.keyExists(x.type)) acc[x.type] = []; 
 				acc[x.type].append({
 					'key': x.old[uniqueKey],
 					'data': x.old
 				});
 			} else if(x.type == 'change'){
-				if(!acc.keyExists(x.type)) acc[x.type] = {}; 
 				if(!acc[x.type].keyExists(x.path[1])) acc[x.type][x.path[1]] = []; 
 				var pathRest =  arraySlice(x.path, 2);
 				acc[x.type][x.path[1]].append({
@@ -92,7 +89,7 @@ component singleton {
 				});
 			}
 			return acc
-		},{});
+		},{add = [], remove=[], change={}});
 		groupedDiff.update = groupedDiff.change.reduce((acc,key,value)=>{
 			acc.push({
 				'key':key,
