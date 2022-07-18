@@ -93,11 +93,11 @@ component singleton {
             if (x.type == 'add') {
                 key = x.new[variables.uniqueKeyName];
                 x.new.delete(variables.uniqueKeyName)
-                acc[x.type].append({'key': deserializeJSON(key), 'data': x.new});
+                acc[x.type].append({'key': deserializeKey(key), 'data': x.new});
             } else if (x.type == 'remove') {
                 key = x.old[variables.uniqueKeyName];
                 x.old.delete(variables.uniqueKeyName)
-                acc[x.type].append({'key': deserializeJSON(key), 'data': x.old});
+                acc[x.type].append({'key': deserializeKey(key), 'data': x.old});
             } else if (x.type == 'change') {
                 if (!acc[x.type].keyExists(x.path[1])) acc[x.type][x.path[1]] = [];
                 var pathRest = arraySlice(x.path, 2);
@@ -114,7 +114,7 @@ component singleton {
             data1[key].delete(variables.uniqueKeyName);
             data2[key].delete(variables.uniqueKeyName);
             acc.push({
-                'key': deserializeJSON(key),
+                'key': deserializeKey(key),
                 'orig': data1[key],
                 'data': data2[key],
                 'changes': value
@@ -127,6 +127,11 @@ component singleton {
         return groupedDiff;
     }
 
+    function deserializeKey(serializedKey){
+        var valueArr = deserializeJSON(serializedKey);
+        if(valueArr.len() == 1) return valueArr[1];
+        return valueArr;
+    }
 
     // Now check that there aren't any keys in second that weren't
     function diff(any first = '', any second = '', array ignoreKeys = []) {
