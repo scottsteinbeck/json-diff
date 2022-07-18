@@ -1,5 +1,5 @@
 component singleton {
-
+    variables.uniqueKeyName = '________key';
     function numericCheck(value) {
         if (
             getMetadata(value).getName() == 'java.lang.Double' ||
@@ -68,8 +68,8 @@ component singleton {
                 accKey.append(x[key]);
                 return accKey;
             }, []);
-            uniqueKey = arrayToList(uniqueKey, '_');
-            x._key = uniqueKey;
+            uniqueKey = serializeJSON(uniqueKey);
+            x[variables.uniqueKeyName] = uniqueKey;
             acc[uniqueKey] = x;
             return acc
         }, {})
@@ -82,6 +82,7 @@ component singleton {
         required any uniqueKeys,
         array ignoreKeys = []
     ) {
+        
         if (!isArray(uniqueKeys)) {
             uniqueKeys = [uniqueKeys];
         }
@@ -90,13 +91,13 @@ component singleton {
         var diffData = diff(data1, data2, ignoreKeys);
         var groupedDiff = diffData.reduce((acc, x) => {
             if (x.type == 'add') {
-                key = x.new['_key'];
-                x.new.delete('_key')
-                acc[x.type].append({'key': key, 'data': x.new});
+                key = x.new[variables.uniqueKeyName];
+                x.new.delete(variables.uniqueKeyName)
+                acc[x.type].append({'key': deserializeJSON(key), 'data': x.new});
             } else if (x.type == 'remove') {
-                key = x.old['_key'];
-                x.old.delete('_key')
-                acc[x.type].append({'key': key, 'data': x.old});
+                key = x.old[variables.uniqueKeyName];
+                x.old.delete(variables.uniqueKeyName)
+                acc[x.type].append({'key': deserializeJSON(key), 'data': x.old});
             } else if (x.type == 'change') {
                 if (!acc[x.type].keyExists(x.path[1])) acc[x.type][x.path[1]] = [];
                 var pathRest = arraySlice(x.path, 2);
@@ -110,10 +111,10 @@ component singleton {
             return acc
         }, {'add': [], 'remove': [], 'change': {}});
         groupedDiff['update'] = groupedDiff.change.reduce((acc, key, value) => {
-            data1[key].delete('_key');
-            data2[key].delete('_key');
+            data1[key].delete(variables.uniqueKeyName);
+            data2[key].delete(variables.uniqueKeyName);
             acc.push({
-                'key': key,
+                'key': deserializeJSON(key),
                 'orig': data1[key],
                 'data': data2[key],
                 'changes': value
@@ -121,6 +122,8 @@ component singleton {
             return acc;
         }, []);
         groupedDiff.delete('change');
+        first.map((row) => { row.delete(variables.uniqueKeyName)})
+        second.map((row) => { row.delete(variables.uniqueKeyName)})
         return groupedDiff;
     }
 
