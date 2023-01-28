@@ -17,6 +17,7 @@
     },
     "Bugs":"https://github.com/scottsteinbeck/json-diff/issues",
     "shortDescription":"An ColdFusion utility for checking if 2 JSON objects have differences",
+    "ignore" : [ "tests/*", "readme.md", "LICENCE" ],
     "keywords":[
         "json diff",
         "json-diff",
