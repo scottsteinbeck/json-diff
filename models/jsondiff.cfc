@@ -1,4 +1,5 @@
 component singleton {
+
     variables.uniqueKeyName = '________key';
     function numericCheck(value) {
         if (
@@ -82,7 +83,6 @@ component singleton {
         required any uniqueKeys,
         array ignoreKeys = []
     ) {
-        
         if (!isArray(uniqueKeys)) {
             uniqueKeys = [uniqueKeys];
         }
@@ -122,14 +122,18 @@ component singleton {
             return acc;
         }, []);
         groupedDiff.delete('change');
-        first.map((row) => { row.delete(variables.uniqueKeyName)})
-        second.map((row) => { row.delete(variables.uniqueKeyName)})
+        first.map((row) => {
+            row.delete(variables.uniqueKeyName)
+        })
+        second.map((row) => {
+            row.delete(variables.uniqueKeyName)
+        })
         return groupedDiff;
     }
 
-    function deserializeKey(serializedKey){
+    function deserializeKey(serializedKey) {
         var valueArr = deserializeJSON(serializedKey);
-        if(valueArr.len() == 1) return valueArr[1];
+        if (valueArr.len() == 1) return valueArr[1];
         return valueArr;
     }
 
@@ -285,15 +289,15 @@ component singleton {
         return diffs;
     }
 
-    
-	function patch(required original, diff = []){
+
+    function patch(required original, diff = []) {
         var original = duplicate(arguments.original);
         var diff = duplicate(arguments.diff);
-		var diffPatchObj = diffpatch(original, diff);
+        var diffPatchObj = diffpatch(original, diff);
         return runPatch(diffPatchObj);
-	}
+    }
 
-    function runPatch(required diffPatchObj){
+    function runPatch(required diffPatchObj) {
         var diffPatchObj = duplicate(arguments.diffPatchObj);
         if (isArray(diffPatchObj)) {
             for (var i = 1; i <= diffPatchObj.len(); i++) {
@@ -304,21 +308,21 @@ component singleton {
                 diffPatchObj = diffPatchObj.new;
             } else {
                 for (var key in diffPatchObj) {
-                        diffPatchObj[key] = runPatch(diffPatchObj[key]);
+                    diffPatchObj[key] = runPatch(diffPatchObj[key]);
                 }
             }
         }
-		return diffPatchObj;
+        return diffPatchObj;
     }
 
-    function displayDiff(required original, diff = []){
+    function displayDiff(required original, diff = []) {
         var original = duplicate(arguments.original);
         var diff = duplicate(arguments.diff);
-		var diffPatchObj = diffpatch(original, diff);
-        return arrayToList(diffToHTML(diffPatchObj),'');
+        var diffPatchObj = diffpatch(original, diff);
+        return arrayToList(diffToHTML(diffPatchObj), '');
     }
 
-    function diffToHTML(required diffPatchObj, nodes = []){
+    function diffToHTML(required diffPatchObj, nodes = []) {
         var diffPatchObj = duplicate(arguments.diffPatchObj);
         if (isArray(diffPatchObj)) {
             nodes.append('<ul>');
@@ -331,12 +335,12 @@ component singleton {
             nodes.append('</ul>');
         } else if (isStruct(diffPatchObj)) {
             if (isStruct(diffPatchObj) && diffPatchObj.keyExists('new')) {
-                if(diffPatchObj.type == 'CHANGE'){
+                if (diffPatchObj.type == 'CHANGE') {
                     nodes.append('<span style="background: ##ffbbbb;text-decoration: line-through;">#diffPatchObj.old#</span> ');
                     nodes.append('<span style="background: ##bbffbb;">#diffPatchObj.new#</span>');
-                } else if(diffPatchObj.type == 'ADD'){
+                } else if (diffPatchObj.type == 'ADD') {
                     nodes.append('<span style="background: ##bbffbb;">#diffPatchObj.new#</span>');
-                } else if(diffPatchObj.type == 'REMOVE'){
+                } else if (diffPatchObj.type == 'REMOVE') {
                     nodes.append('<span style="background: ##ffbbbb;text-decoration: line-through;">#diffPatchObj.old#</span>');
                 } else {
                     nodes.append('<span style="color:##666">#diffPatchObj.old#</span>');
@@ -355,110 +359,91 @@ component singleton {
         return nodes;
     }
 
-	function diffpatch(required original, diff = []){
+    function diffpatch(required original, diff = []) {
         var original = duplicate(arguments.original);
         var diff = duplicate(arguments.diff);
-        var filterDiffs = diff.reduce((acc, changeItem)=>{
-			if(changeItem.path.len() == 1){
-				acc.matches[changeItem.path[1]] = {
-					'old': changeItem.old,
-					'new': changeItem.new,
-					'type': changeItem.type
-				};
-			} else {
-				acc.unmatched.append(changeItem);
-			}
-			return acc;
-		},{ matches: {}, unmatched: []});
+        var filterDiffs = diff.reduce((acc, changeItem) => {
+            if (changeItem.path.len() == 1) {
+                acc.matches[changeItem.path[1]] = {
+                    'old': changeItem.old,
+                    'new': changeItem.new,
+                    'type': changeItem.type
+                };
+            } else {
+                acc.unmatched.append(changeItem);
+            }
+            return acc;
+        }, {matches: {}, unmatched: []});
 
-		var levelDiffs = filterDiffs.matches;
+        var levelDiffs = filterDiffs.matches;
 
 
-		if (isSimpleValue(original)) {
-			if(diff.len()){
-				original = {
-					'old': diff[1].old,
-					'new': diff[1].new,
-					'type': diff[1].type
-				};
-			} else {
-				arguments.original = {
-					'old': original,
-					'new': original,
-					'type': 'SAME'
-				}
-			}
-
+        if (isSimpleValue(original)) {
+            if (diff.len()) {
+                original = {'old': diff[1].old, 'new': diff[1].new, 'type': diff[1].type};
+            } else {
+                arguments.original = {'old': original, 'new': original, 'type': 'SAME'}
+            }
         } else if (isArray(original)) {
             for (var i = 1; i <= original.len(); i++) {
                 var path = i;
                 if (isSimpleValue(original[i])) {
-					if(levelDiffs.keyExists(path)){
-						original[i] = levelDiffs[path];
-						structDelete(levelDiffs,path);
-					} else {
-						original[i] = {
-							'old': original[i],
-							'new': original[i],
-							'type': 'SAME'
-						}
-					}
+                    if (levelDiffs.keyExists(path)) {
+                        original[i] = levelDiffs[path];
+                        structDelete(levelDiffs, path);
+                    } else {
+                        original[i] = {'old': original[i], 'new': original[i], 'type': 'SAME'}
+                    }
                 } else {
-					var subDiffs = filterDiffs.unmatched.reduce((acc,changeItem)=>{
-						if(changeItem.path.len() > 1 && changeItem.path[1] == path){
-							arrayDeleteAt(changeItem.path, 1);
-							acc.append(changeItem);
-						}
-						return acc;
-					},[]);
+                    var subDiffs = filterDiffs.unmatched.reduce((acc, changeItem) => {
+                        if (changeItem.path.len() > 1 && changeItem.path[1] == path) {
+                            arrayDeleteAt(changeItem.path, 1);
+                            acc.append(changeItem);
+                        }
+                        return acc;
+                    }, []);
                     original[i] = diffpatch(original[i], subDiffs);
                 }
             }
         } else if (isStruct(original)) {
             for (var key in original) {
-                var path =  key;
+                var path = key;
                 if (isSimpleValue(original[key])) {
-					if(levelDiffs.keyExists(path)){
-						original[key] = levelDiffs[path];
-						structDelete(levelDiffs,path);
-					} else {
-						original[key] = {
-							'old': original[key],
-							'new': original[key],
-							'type': 'SAME'
-						}
-					}
+                    if (levelDiffs.keyExists(path)) {
+                        original[key] = levelDiffs[path];
+                        structDelete(levelDiffs, path);
+                    } else {
+                        original[key] = {'old': original[key], 'new': original[key], 'type': 'SAME'}
+                    }
                 } else {
-					var subDiffs = filterDiffs.unmatched.reduce((acc,changeItem)=>{
-						if(changeItem.path.len() > 1 && changeItem.path[1] == path){
-							arrayDeleteAt(changeItem.path, 1);
-							acc.append(changeItem);
-						}
-						return acc;
-					},[]);
-					original[key] = diffpatch(original[key], subDiffs);
+                    var subDiffs = filterDiffs.unmatched.reduce((acc, changeItem) => {
+                        if (changeItem.path.len() > 1 && changeItem.path[1] == path) {
+                            arrayDeleteAt(changeItem.path, 1);
+                            acc.append(changeItem);
+                        }
+                        return acc;
+                    }, []);
+                    original[key] = diffpatch(original[key], subDiffs);
                 }
             }
         }
 
-		//ADDED Items
-		for(var diffKey in levelDiffs){
-			if (isSimpleValue(levelDiffs[diffKey]['new'])) {
-				original[diffKey] = levelDiffs[diffKey];
-			} else if (isStruct(levelDiffs[diffKey]['new'])) {
-				original[diffKey] = {};
-				for(var subDiffKey in levelDiffs[diffKey]['new']){
-					original[diffKey][subDiffKey] = {
-						'old': '',
-						'new': levelDiffs[diffKey]['new'][subDiffKey],
-						'type': 'ADD'
-					}
-
-				}
-			}
-		}
-		return original;
-	}
-
+        // ADDED Items
+        for (var diffKey in levelDiffs) {
+            if (isSimpleValue(levelDiffs[diffKey]['new'])) {
+                original[diffKey] = levelDiffs[diffKey];
+            } else if (isStruct(levelDiffs[diffKey]['new'])) {
+                original[diffKey] = {};
+                for (var subDiffKey in levelDiffs[diffKey]['new']) {
+                    original[diffKey][subDiffKey] = {
+                        'old': '',
+                        'new': levelDiffs[diffKey]['new'][subDiffKey],
+                        'type': 'ADD'
+                    }
+                }
+            }
+        }
+        return original;
+    }
 
 }
