@@ -285,4 +285,180 @@ component singleton {
         return diffs;
     }
 
+    
+	function patch(required original, diff = []){
+        var original = duplicate(arguments.original);
+        var diff = duplicate(arguments.diff);
+		var diffPatchObj = diffpatch(original, diff);
+        return runPatch(diffPatchObj);
+	}
+
+    function runPatch(required diffPatchObj){
+        var diffPatchObj = duplicate(arguments.diffPatchObj);
+        if (isArray(diffPatchObj)) {
+            for (var i = 1; i <= diffPatchObj.len(); i++) {
+                diffPatchObj[i] = runPatch(diffPatchObj[i]);
+            }
+        } else if (isStruct(diffPatchObj)) {
+            if (isStruct(diffPatchObj) && diffPatchObj.keyExists('new')) {
+                diffPatchObj = diffPatchObj.new;
+            } else {
+                for (var key in diffPatchObj) {
+                        diffPatchObj[key] = runPatch(diffPatchObj[key]);
+                }
+            }
+        }
+		return diffPatchObj;
+    }
+
+    function displayDiff(required original, diff = []){
+        var original = duplicate(arguments.original);
+        var diff = duplicate(arguments.diff);
+		var diffPatchObj = diffpatch(original, diff);
+        return arrayToList(diffToHTML(diffPatchObj),'');
+    }
+
+    function diffToHTML(required diffPatchObj, nodes = []){
+        var diffPatchObj = duplicate(arguments.diffPatchObj);
+        if (isArray(diffPatchObj)) {
+            nodes.append('<ul>');
+            for (var i = 1; i <= diffPatchObj.len(); i++) {
+                nodes.append('<li>');
+                nodes.append('<span style="font-weight:bold">#i#</span> ');
+                nodes = diffToHTML(diffPatchObj[i], nodes);
+                nodes.append('</li>');
+            }
+            nodes.append('</ul>');
+        } else if (isStruct(diffPatchObj)) {
+            if (isStruct(diffPatchObj) && diffPatchObj.keyExists('new')) {
+                if(diffPatchObj.type == 'CHANGE'){
+                    nodes.append('<span style="background: ##ffbbbb;text-decoration: line-through;">#diffPatchObj.old#</span> ');
+                    nodes.append('<span style="background: ##bbffbb;">#diffPatchObj.new#</span>');
+                } else if(diffPatchObj.type == 'ADD'){
+                    nodes.append('<span style="background: ##bbffbb;">#diffPatchObj.new#</span>');
+                } else if(diffPatchObj.type == 'REMOVE'){
+                    nodes.append('<span style="background: ##ffbbbb;text-decoration: line-through;">#diffPatchObj.old#</span>');
+                } else {
+                    nodes.append('<span style="color:##666">#diffPatchObj.old#</span>');
+                }
+            } else {
+                nodes.append('<ul>');
+                for (var key in diffPatchObj) {
+                    nodes.append('<li>');
+                    nodes.append('<span style="font-weight:bold">#key#</span>: ');
+                    nodes = diffToHTML(diffPatchObj[key], nodes);
+                    nodes.append('</li>');
+                }
+                nodes.append('</ul>');
+            }
+        }
+        return nodes;
+    }
+
+	function diffpatch(required original, diff = []){
+        var original = duplicate(arguments.original);
+        var diff = duplicate(arguments.diff);
+        var filterDiffs = diff.reduce((acc, changeItem)=>{
+			if(changeItem.path.len() == 1){
+				acc.matches[changeItem.path[1]] = {
+					'old': changeItem.old,
+					'new': changeItem.new,
+					'type': changeItem.type
+				};
+			} else {
+				acc.unmatched.append(changeItem);
+			}
+			return acc;
+		},{ matches: {}, unmatched: []});
+
+		var levelDiffs = filterDiffs.matches;
+
+
+		if (isSimpleValue(original)) {
+			if(diff.len()){
+				original = {
+					'old': diff[1].old,
+					'new': diff[1].new,
+					'type': diff[1].type
+				};
+			} else {
+				arguments.original = {
+					'old': original,
+					'new': original,
+					'type': 'SAME'
+				}
+			}
+
+        } else if (isArray(original)) {
+            for (var i = 1; i <= original.len(); i++) {
+                var path = i;
+                if (isSimpleValue(original[i])) {
+					if(levelDiffs.keyExists(path)){
+						original[i] = levelDiffs[path];
+						structDelete(levelDiffs,path);
+					} else {
+						original[i] = {
+							'old': original[i],
+							'new': original[i],
+							'type': 'SAME'
+						}
+					}
+                } else {
+					var subDiffs = filterDiffs.unmatched.reduce((acc,changeItem)=>{
+						if(changeItem.path.len() > 1 && changeItem.path[1] == path){
+							arrayDeleteAt(changeItem.path, 1);
+							acc.append(changeItem);
+						}
+						return acc;
+					},[]);
+                    original[i] = diffpatch(original[i], subDiffs);
+                }
+            }
+        } else if (isStruct(original)) {
+            for (var key in original) {
+                var path =  key;
+                if (isSimpleValue(original[key])) {
+					if(levelDiffs.keyExists(path)){
+						original[key] = levelDiffs[path];
+						structDelete(levelDiffs,path);
+					} else {
+						original[key] = {
+							'old': original[key],
+							'new': original[key],
+							'type': 'SAME'
+						}
+					}
+                } else {
+					var subDiffs = filterDiffs.unmatched.reduce((acc,changeItem)=>{
+						if(changeItem.path.len() > 1 && changeItem.path[1] == path){
+							arrayDeleteAt(changeItem.path, 1);
+							acc.append(changeItem);
+						}
+						return acc;
+					},[]);
+					original[key] = diffpatch(original[key], subDiffs);
+                }
+            }
+        }
+
+		//ADDED Items
+		for(var diffKey in levelDiffs){
+			if (isSimpleValue(levelDiffs[diffKey]['new'])) {
+				original[diffKey] = levelDiffs[diffKey];
+			} else if (isStruct(levelDiffs[diffKey]['new'])) {
+				original[diffKey] = {};
+				for(var subDiffKey in levelDiffs[diffKey]['new']){
+					original[diffKey][subDiffKey] = {
+						'old': '',
+						'new': levelDiffs[diffKey]['new'][subDiffKey],
+						'type': 'ADD'
+					}
+
+				}
+			}
+		}
+		return original;
+	}
+
+
 }
