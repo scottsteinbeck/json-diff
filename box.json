@@ -1,9 +1,12 @@
 {
     "name":"JSON-Diff",
     "slug":"jsondiff",
-    "version":"1.1.3",
-    "License" : [
-        { "type" : "MIT", "URL" : "https://github.com/scottsteinbeck/json-diff/blob/master/LICENSE" }
+    "version":"2.0.0",
+    "License":[
+        {
+            "type":"MIT",
+            "URL":"https://github.com/scottsteinbeck/json-diff/blob/master/LICENSE"
+        }
     ],
     "author":"Scott Steinbeck <scottsteinbeck@gmail.com>",
     "Documentation":"https://github.com/scottsteinbeck/json-diff",
@@ -11,13 +14,17 @@
         "type":"git",
         "URL":"https://github.com/scottsteinbeck/json-diff"
     },
-	"scripts":{
+    "scripts":{
         "postVersion":"publish",
         "onRelease":"!git push --follow-tags"
     },
     "Bugs":"https://github.com/scottsteinbeck/json-diff/issues",
     "shortDescription":"An ColdFusion utility for checking if 2 JSON objects have differences",
-    "ignore" : [ "tests/*", "readme.md", "LICENCE" ],
+    "ignore":[
+        "tests/*",
+        "readme.md",
+        "LICENCE"
+    ],
     "keywords":[
         "json diff",
         "json-diff",
