@@ -336,14 +336,14 @@ component singleton {
         } else if (isStruct(diffPatchObj)) {
             if (isStruct(diffPatchObj) && diffPatchObj.keyExists('new')) {
                 if (diffPatchObj.type == 'CHANGE') {
-                    nodes.append('<span style="background: ##ffbbbb;text-decoration: line-through;">#diffPatchObj.old#</span> ');
-                    nodes.append('<span style="background: ##bbffbb;">#diffPatchObj.new#</span>');
+                    nodes.append('<span style="background: ##ffbbbb;text-decoration: line-through;">#serializeJson( diffPatchObj.old )#</span> ');
+                    nodes.append('<span style="background: ##bbffbb;">#serializeJson( diffPatchObj.new )#</span> (change)');
                 } else if (diffPatchObj.type == 'ADD') {
-                    nodes.append('<span style="background: ##bbffbb;">#diffPatchObj.new#</span>');
+                    nodes.append('<span style="background: ##bbffbb;">#serializeJson( diffPatchObj.new )#</span> (add)');
                 } else if (diffPatchObj.type == 'REMOVE') {
-                    nodes.append('<span style="background: ##ffbbbb;text-decoration: line-through;">#diffPatchObj.old#</span>');
+                    nodes.append('<span style="background: ##ffbbbb;text-decoration: line-through;">#serializeJson( diffPatchObj.old )#</span> (remove) ');
                 } else {
-                    nodes.append('<span style="color:##666">#diffPatchObj.old#</span>');
+                    nodes.append('<span style="color:##666">#serializeJson( diffPatchObj.old )#</span> (same)');
                 }
             } else {
                 nodes.append('<ul>');
