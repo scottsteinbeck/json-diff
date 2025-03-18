@@ -41,7 +41,7 @@
         "Scott Steinbeck <scottsteinbeck@gmail.com>"
     ],
     "DevDependencies":{
-        "testbox":"^4.2.1+400"
+        "testbox":"6.3.0+13"
     },
     "installPaths":{
         "testbox":"testbox/"
