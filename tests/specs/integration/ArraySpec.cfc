@@ -44,6 +44,7 @@ component extends="testbox.system.BaseSpec"{
 						{
 							"type": "CHANGE",
 							"path": ["test", 2, "test"],
+							"key": "test",
 							"old": true,
 							"new": false,
 						},

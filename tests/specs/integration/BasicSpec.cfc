@@ -27,6 +27,7 @@ component extends="testbox.system.BaseSpec"{
 					{
 						type: "CHANGE",
 						path: ["test"],
+						key: "test",
 						old: true,
 						new: false
 					},
@@ -61,6 +62,17 @@ component extends="testbox.system.BaseSpec"{
 						path: ["object"],
 						old: { test: true },
 						new: "string",
+					},
+				]);
+			});
+			
+			it("add array", () => {
+				expect(jsondiff.diff({ }, { array: [] })).toBe([
+					{
+						type: "ADD",
+						path: ["array"],
+						old: "",
+						new: [],
 					},
 				]);
 			});
