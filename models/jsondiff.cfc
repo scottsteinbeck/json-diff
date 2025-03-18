@@ -441,6 +441,12 @@ component singleton {
                         'type': 'ADD'
                     }
                 }
+            } else if (isArray(levelDiffs[diffKey]['new'])) {
+                original[diffKey] = {
+                    'old': '',
+                    'new': levelDiffs[diffKey]['new'],
+                    'type': 'ADD'
+                }
             }
         }
         return original;
