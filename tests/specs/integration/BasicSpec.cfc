@@ -5,6 +5,7 @@ component extends="testbox.system.BaseSpec"{
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
 	function beforeAll(){
+		application.debug = debug;
 		jsondiff = new models.jsondiff();
 	}
 
@@ -75,6 +76,49 @@ component extends="testbox.system.BaseSpec"{
 						new: [],
 					},
 				]);
+			});
+			
+			it("change property to null", () => {
+				var obj = { test: "foo"};
+				var changed = { test: nullValue() };
+				var diff = jsondiff.diff(obj,changed);
+				debug( diff );
+				debug( serializeJSON( diff ) );
+				expect(diff).toBe([{
+					path: ["TEST"],
+					old: "foo",
+					type: "REMOVE",
+					new: ""
+				}]);
+			});
+			
+			it("remove null property", () => {
+				var obj = { test: nullValue() };
+				var changed = {};
+				var diff = jsondiff.diff(obj,changed);
+				debug( diff );
+				debug( serializeJSON( diff ) );
+				expect(diff).toBe([{
+					path:["TEST"],
+					old:"",
+					type:"REMOVE",
+					new:""
+				}]);
+			});
+			
+			it("add null property", () => {
+				var obj = {};
+				var changed = { test: nullValue() };
+				var diff = jsondiff.diff(obj,changed);
+				debug( changed );
+				debug( diff );
+				debug( serializeJSON( diff ) );
+				expect(diff).toBe([{
+					path: ["TEST"],
+					old: "",
+					type: "ADD",
+					new: ""
+				}]);
 			});
 		})
 	}

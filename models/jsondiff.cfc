@@ -174,6 +174,7 @@ component singleton {
         } else if (isArray(first) && isArray(second)) {
             for (var i = 1; i <= first.len(); i++) {
                 var path = i;
+                first[i] = isNull(first[i]) ? '' : first[i];
 
                 if (second.len() < i) {
                     diffs.append({
@@ -182,12 +183,22 @@ component singleton {
                         'old': first[i],
                         'new': ''
                     });
-                } else if (isSimpleValue(first[i]) && isSimpleValue(second[i])) {
-                    if (
-                        numericCheck(first[i])
-                        && numericCheck(second[i])
-                    ) {
-                        if (precisionEvaluate(first[i] - second[i]) != 0) {
+                } else {
+                    second[i] = isNull(second[i]) ? '' : second[i];
+                    if (isSimpleValue(first[i]) && isSimpleValue(second[i])) {
+                        if (
+                            numericCheck(first[i])
+                            && numericCheck(second[i])
+                        ) {
+                            if (precisionEvaluate(first[i] - second[i]) != 0) {
+                                diffs.append({
+                                    'path': [path],
+                                    'type': 'CHANGE',
+                                    'old': first[i],
+                                    'new': second[i]
+                                });
+                            }
+                        } else if (first[i] != second[i]) {
                             diffs.append({
                                 'path': [path],
                                 'type': 'CHANGE',
@@ -195,20 +206,13 @@ component singleton {
                                 'new': second[i]
                             });
                         }
-                    } else if (first[i] != second[i]) {
-                        diffs.append({
-                            'path': [path],
-                            'type': 'CHANGE',
-                            'old': first[i],
-                            'new': second[i]
+                    } else {
+                        var nestedDiffs = diff(first[i], second[i], ignoreKeys);
+                        nestedDiffs = nestedDiffs.each((difference) => {
+                            difference.path.prepend(path);
+                            diffs.append(difference);
                         });
                     }
-                } else {
-                    var nestedDiffs = diff(first[i], second[i], ignoreKeys);
-                    nestedDiffs = nestedDiffs.each((difference) => {
-                        difference.path.prepend(path);
-                        diffs.append(difference);
-                    });
                 }
             }
             for (var t = first.len() + 1; t <= second.len(); t++) {
@@ -217,30 +221,47 @@ component singleton {
                     'type': 'ADD',
                     'path': [path],
                     'old': '',
-                    'new': second[path]
+                    'new': isNull( second[path] ) ? '' : second[path]
                 });
             }
         } else if (isStruct(first) && isStruct(second)) {
-            var keysSeen = {};
+            var keysSeen = [];
+            var firstKeys = structKeyArray(first);
+            var secondKeys = structKeyArray(second);
             for (var key in first) {
                 var path = key;
                 if (ignoreKeys.find(key) > 0) {
                     continue;
                 }
-                if (!first.keyExists(key)) first[key] = '';
-                if (!second.keyExists(key)) {
+                if (!firstKeys.findNoCase(key) || isNull( first[key])) {
+                    first[key] = '';
+                }
+                if (!secondKeys.findNoCase(key) || isNull( second[key])) {
                     diffs.append({
                         'path': [path],
                         'type': 'REMOVE',
                         'old': first[key],
                         'new': ''
                     });
-                } else if (isSimpleValue(first[key]) && isSimpleValue(second[key])) {
-                    if (
-                        numericCheck(first[key])
-                        && numericCheck(second[key])
-                    ) {
-                        if (precisionEvaluate(first[key] - second[key]) != 0) {
+                } else {
+                    if (isNull(second[key])) {
+                        second[key] = '';
+                    }
+                    if (isSimpleValue(first[key]) && isSimpleValue(second[key])) {
+                        if (
+                            numericCheck(first[key])
+                            && numericCheck(second[key])
+                        ) {
+                            if (precisionEvaluate(first[key] - second[key]) != 0) {
+                                diffs.append({
+                                    'key': path,
+                                    'path': [path],
+                                    'type': 'CHANGE',
+                                    'old': first[key],
+                                    'new': second[key]
+                                });
+                            }
+                        } else if (first[key] != second[key]) {
                             diffs.append({
                                 'key': path,
                                 'path': [path],
@@ -249,25 +270,17 @@ component singleton {
                                 'new': second[key]
                             });
                         }
-                    } else if (first[key] != second[key]) {
-                        diffs.append({
-                            'key': path,
-                            'path': [path],
-                            'type': 'CHANGE',
-                            'old': first[key],
-                            'new': second[key]
-                        });
-                    }
-                } else {
-                    if (structKeyExists(first, key) && structKeyExists(second, key)) {
-                        var nestedDiffs = diff(first[key], second[key], ignoreKeys);
-                        nestedDiffs = nestedDiffs.each((difference) => {
-                            difference.path.prepend(path);
-                            diffs.append(difference);
-                        })
+                    } else {
+                        if (firstKeys.findNoCase(key) && secondKeys.findNoCase(key)) {
+                            var nestedDiffs = diff(first[key], second[key], ignoreKeys);
+                            nestedDiffs = nestedDiffs.each((difference) => {
+                                difference.path.prepend(path);
+                                diffs.append(difference);
+                            })
+                        }
                     }
                 }
-                keysSeen[key] = true;
+                keysSeen.append( key );
             }
             // Now check that there aren't any keys in second that weren't
             // in first.
@@ -275,7 +288,10 @@ component singleton {
                 if (ignoreKeys.find(key2) > 0) {
                     continue;
                 };
-                if (structKeyExists(second, key2) && !structKeyExists(keysSeen, key2)) {
+                if (secondKeys.findNoCase(key2) && !keysSeen.findNoCase(key2)) {
+                    if (isNull(second[key2])) {
+                        second[key2] = '';
+                    }
                     diffs.append({
                         'type': 'ADD',
                         'path': [key2],
@@ -284,6 +300,8 @@ component singleton {
                     });
                 }
             }
+        } else {
+            diffs = ["something went wrong"];
         }
 
         return diffs;

@@ -51,6 +51,36 @@ component extends="testbox.system.BaseSpec"{
 					]
 				);
 			});
+
+			it("array add null value", () => {
+				expect(
+					jsondiff.diff(
+						{ test: [] },
+						{ test: [nullValue()] }
+					)).toBe([
+						{"path":["TEST",1],"old":"","type":"ADD","new":""}
+				]);
+			});
+
+			it("array remove null value", () => {
+				expect(
+					jsondiff.diff(
+						{ test: [nullValue()] },
+						{ test: [] }
+					)).toBe([
+						{"path":["TEST",1],"old":"","type":"REMOVE","new":""}
+				]);
+			});
+
+			it("array change null value", () => {
+				expect(
+					jsondiff.diff(
+						{ test: [nullValue()] },
+						{ test: ["foo"] }
+					)).toBe([
+						{"path":["TEST",1],"old":"","type":"CHANGE","new":"foo"}
+				]);
+			});
 		})
 	}
 
