@@ -121,6 +121,44 @@ component extends="testbox.system.BaseSpec"{
 				}]);
 			});
 		})
+		describe("Test Case Sensitivity", ()=>{
+			it("change case with sensitivity off", () => {
+				expect(jsondiff.diff( "foo", "FOO" )).toBe([]);
+			});
+			it("change case with sensitivity on", () => {
+				expect(jsondiff.diff( "foo", "FOO", [], true)).toBe([
+					{
+						type: "CHANGE",
+						path: [],
+						old: "foo",
+						new: "FOO"
+					},
+				]);
+			});
+			it("change struct value case", () => {
+				expect(jsondiff.diff({ test: "foo" }, { test: "FOO" }, [], true)).toBe([
+					{
+						type: "CHANGE",
+						path: ["test"],
+						key: "test",
+						old: "foo",
+						new: "FOO"
+					},
+				]);
+			});
+			
+			it("change array value case", () => {
+				expect(jsondiff.diff({ test: ["foo"] }, { test: ["FOO"] }, [], true)).toBe([
+					{
+						type: "CHANGE",
+						path: ["TEST", 1],
+						old: "foo",
+						new: "FOO"
+					},
+				]);
+			});
+			
+		})
 	}
 
 }

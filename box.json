@@ -1,7 +1,7 @@
 {
     "name":"JSON-Diff",
     "slug":"jsondiff",
-    "version":"2.1.1",
+    "version":"2.2.0",
     "License":[
         {
             "type":"MIT",
