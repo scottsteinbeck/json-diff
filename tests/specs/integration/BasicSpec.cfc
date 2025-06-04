@@ -5,6 +5,7 @@ component extends="testbox.system.BaseSpec"{
 	/*********************************** LIFE CYCLE Methods ***********************************/
 
 	function beforeAll(){
+		application.debug = debug;
 		jsondiff = new models.jsondiff();
 	}
 
@@ -27,6 +28,7 @@ component extends="testbox.system.BaseSpec"{
 					{
 						type: "CHANGE",
 						path: ["test"],
+						key: "test",
 						old: true,
 						new: false
 					},
@@ -64,6 +66,98 @@ component extends="testbox.system.BaseSpec"{
 					},
 				]);
 			});
+			
+			it("add array", () => {
+				expect(jsondiff.diff({ }, { array: [] })).toBe([
+					{
+						type: "ADD",
+						path: ["array"],
+						old: "",
+						new: [],
+					},
+				]);
+			});
+			
+			it("change property to null", () => {
+				var obj = { test: "foo"};
+				var changed = { test: nullValue() };
+				var diff = jsondiff.diff(obj,changed);
+				debug( diff );
+				debug( serializeJSON( diff ) );
+				expect(diff).toBe([{
+					path: ["TEST"],
+					old: "foo",
+					type: "REMOVE",
+					new: ""
+				}]);
+			});
+			
+			it("remove null property", () => {
+				var obj = { test: nullValue() };
+				var changed = {};
+				var diff = jsondiff.diff(obj,changed);
+				debug( diff );
+				debug( serializeJSON( diff ) );
+				expect(diff).toBe([{
+					path:["TEST"],
+					old:"",
+					type:"REMOVE",
+					new:""
+				}]);
+			});
+			
+			it("add null property", () => {
+				var obj = {};
+				var changed = { test: nullValue() };
+				var diff = jsondiff.diff(obj,changed);
+				debug( changed );
+				debug( diff );
+				debug( serializeJSON( diff ) );
+				expect(diff).toBe([{
+					path: ["TEST"],
+					old: "",
+					type: "ADD",
+					new: ""
+				}]);
+			});
+		})
+		describe("Test Case Sensitivity", ()=>{
+			it("change case with sensitivity off", () => {
+				expect(jsondiff.diff( "foo", "FOO" )).toBe([]);
+			});
+			it("change case with sensitivity on", () => {
+				expect(jsondiff.diff( "foo", "FOO", [], true)).toBe([
+					{
+						type: "CHANGE",
+						path: [],
+						old: "foo",
+						new: "FOO"
+					},
+				]);
+			});
+			it("change struct value case", () => {
+				expect(jsondiff.diff({ test: "foo" }, { test: "FOO" }, [], true)).toBe([
+					{
+						type: "CHANGE",
+						path: ["test"],
+						key: "test",
+						old: "foo",
+						new: "FOO"
+					},
+				]);
+			});
+			
+			it("change array value case", () => {
+				expect(jsondiff.diff({ test: ["foo"] }, { test: ["FOO"] }, [], true)).toBe([
+					{
+						type: "CHANGE",
+						path: ["TEST", 1],
+						old: "foo",
+						new: "FOO"
+					},
+				]);
+			});
+			
 		})
 	}
 

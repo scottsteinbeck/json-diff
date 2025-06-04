@@ -1,7 +1,7 @@
 {
     "name":"JSON-Diff",
     "slug":"jsondiff",
-    "version":"2.0.0",
+    "version":"2.2.0",
     "License":[
         {
             "type":"MIT",
@@ -41,7 +41,7 @@
         "Scott Steinbeck <scottsteinbeck@gmail.com>"
     ],
     "DevDependencies":{
-        "testbox":"^4.2.1+400"
+        "testbox":"6.3.0+13"
     },
     "installPaths":{
         "testbox":"testbox/"
