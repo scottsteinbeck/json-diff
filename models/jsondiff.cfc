@@ -322,6 +322,14 @@ component singleton {
         return arrayToList(diffToHTML(diffPatchObj), '');
     }
 
+    /**
+    * Generate an HTML visualization of the differences between two objects.
+    */
+    function visualizeDiff(required any first, required any second, array ignoreKeys = []) {
+        var diffs = diff(arguments.first, arguments.second, arguments.ignoreKeys);
+        return displayDiff(arguments.first, diffs);
+    }
+
     function diffToHTML(required diffPatchObj, nodes = []) {
         var diffPatchObj = duplicate(arguments.diffPatchObj);
         if (isArray(diffPatchObj)) {
@@ -357,6 +365,22 @@ component singleton {
             }
         }
         return nodes;
+    }
+
+    function summary(required any diffs) {
+        var counts = { 'add': 0, 'remove': 0, 'change': 0, 'update': 0 };
+        if (isArray(diffs)) {
+            for (var i = 1; i <= diffs.len(); i++) {
+                var typeKey = lcase(diffs[i].type);
+                if (!counts.keyExists(typeKey)) counts[typeKey] = 0;
+                counts[typeKey]++;
+            }
+        } else if (isStruct(diffs)) {
+            for (var key in ['add','remove','change','update']) {
+                if (diffs.keyExists(key)) counts[key] = arrayLen(diffs[key]);
+            }
+        }
+        return counts;
     }
 
     function diffpatch(required original, diff = []) {

@@ -32,6 +32,8 @@ JSONDiff = new path.to.the.cfc.JSONDiff(); //Instantiate Object
 JSONDiff.diff(origData, newData [, ignored array of keys])
 JSONDiff.diffByKey(origData, newData, uniqueKey [, ignored array of keys])
 JSONDiff.isSame(origData, newData [, ignored array of keys])
+JSONDiff.summary(diffs)
+JSONDiff.visualizeDiff(origData, newData [, ignored array of keys])
 ```
 
 ## Usage
@@ -139,6 +141,32 @@ Great for comparing 2 arrays of structs
 
     //Result
     false
+```
+
+### summary (diffs)
+#### Get a count of each diff type.
+
+```javascript
+    var diffs = JSONDiff.diff({a:1},{a:2,b:3});
+    JSONDiff.summary(diffs);
+
+    //Result
+    {
+        add: 1,
+        remove: 0,
+        change: 1,
+        update: 0
+    }
+```
+
+### visualizeDiff (origData, newData [, ignored array of keys])
+#### Return a simple HTML diff between two objects.
+
+```javascript
+    JSONDiff.visualizeDiff({a:1},{a:2});
+
+    //Result
+    <ul><li><span style="font-weight:bold">a</span>: <span style="background: #ffbbbb;text-decoration: line-through;">1</span> <span style="background: #bbffbb;">2</span></li></ul>
 ```
 
 ## License
