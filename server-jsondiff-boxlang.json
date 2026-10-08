@@ -1,0 +1,16 @@
+{
+    "app":{
+        "cfengine":"boxlang"
+    },
+    "JVM":{
+        "javaVersion":"openjdk21"
+    },
+    "name":"jsondiff-boxlang",
+    "openbrowser":"false",
+    "web":{
+        "http":{
+            "port":"62881"
+        },
+        "webroot":"/"
+    }
+}

@@ -10,6 +10,7 @@ Apache License, Version 2.0.
 ## System Requirements
 
 - Lucee 5+
+- BoxLang 1+
 - Adobe ColdFusion 2016 (Deprecated)
 - Adobe ColdFusion 2018+
 

@@ -35,6 +35,10 @@
         {
             "type":"lucee",
             "version":">=4.5.x"
+        },
+        {
+            "type":"boxlang",
+            "version":">=1.0.0"
         }
     ],
     "Contributors":[
