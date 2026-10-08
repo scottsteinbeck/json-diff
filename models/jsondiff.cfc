@@ -2,19 +2,29 @@ component singleton {
 
     variables.uniqueKeyName = '________key';
     function numericCheck(value) {
-        if (
-            getMetadata(value).getName() == 'java.lang.Double' ||
-            getMetadata(value).getName() == 'java.lang.Integer'
-        )
-            return true;
-        return false
+        if (isNull(value) || !isSimpleValue(value)) {
+            return false;
+        }
+        return listFindNoCase(
+            "java.lang.Double,java.lang.Integer,java.lang.Long,java.lang.Float,java.lang.Short,java.math.BigDecimal",
+            getMetadata(value).getName()
+        ) > 0;
+    }
+
+    /**
+    * Numeric inequality that does not depend on precisionEvaluate(), which BoxLang does not provide.
+    */
+    function numbersDiffer(left, right) {
+        var leftDecimal = createObject("java", "java.math.BigDecimal").init(javacast("string", left));
+        var rightDecimal = createObject("java", "java.math.BigDecimal").init(javacast("string", right));
+        return leftDecimal.compareTo(rightDecimal) != 0;
     }
 
     function isSame(first, second) {
         if (isNull(first) && isNull(second)) return true;
         if (isNull(first) || isNull(second)) return false;
         if (isSimpleValue(first) && isSimpleValue(second)) {
-            if (numericCheck(first) && numericCheck(second) && precisionEvaluate(first - second) != 0) {
+            if (numericCheck(first) && numericCheck(second) && numbersDiffer(first, second)) {
                 return false;
             } else if (first != second) {
                 return false;
@@ -73,7 +83,7 @@ component singleton {
             x[variables.uniqueKeyName] = uniqueKey;
             acc[uniqueKey] = x;
             return acc
-        }, {})
+        }, structNew("ordered"))
     }
 
 
@@ -109,7 +119,7 @@ component singleton {
                 });
             }
             return acc
-        }, {'add': [], 'remove': [], 'change': {}});
+        }, {'add': [], 'remove': [], 'change': structNew("ordered")});
         groupedDiff['update'] = groupedDiff.change.reduce((acc, key, value) => {
             data1[key].delete(variables.uniqueKeyName);
             data2[key].delete(variables.uniqueKeyName);
@@ -155,7 +165,7 @@ component singleton {
                 numericCheck(first)
                 && numericCheck(second)
             ) {
-                if (precisionEvaluate(first - second) != 0) {
+                if (numbersDiffer(first, second)) {
                     diffs.append({
                         'path': [],
                         'type': 'CHANGE',
@@ -187,7 +197,7 @@ component singleton {
                         numericCheck(first[i])
                         && numericCheck(second[i])
                     ) {
-                        if (precisionEvaluate(first[i] - second[i]) != 0) {
+                        if (numbersDiffer(first[i], second[i])) {
                             diffs.append({
                                 'path': [path],
                                 'type': 'CHANGE',
@@ -240,7 +250,7 @@ component singleton {
                         numericCheck(first[key])
                         && numericCheck(second[key])
                     ) {
-                        if (precisionEvaluate(first[key] - second[key]) != 0) {
+                        if (numbersDiffer(first[key], second[key])) {
                             diffs.append({
                                 'key': path,
                                 'path': [path],
