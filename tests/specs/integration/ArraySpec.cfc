@@ -34,6 +34,46 @@ component extends="testbox.system.BaseSpec"{
 				);
 			});
 
+			it("appends an item", () => {
+				expect(jsondiff.diff(["test"], ["test", "testing"])).toBe([
+					{
+						"type": "ADD",
+						"path": [2],
+						"old": "",
+						"new": "testing"
+					}
+				]);
+			});
+
+			it("diffs empty arrays", () => {
+				expect(jsondiff.diff([], [])).toBe([]);
+				expect(jsondiff.diff([], ["test"])).toBe([
+					{
+						"type": "ADD",
+						"path": [1],
+						"old": "",
+						"new": "test"
+					}
+				]);
+			});
+
+			it("changes a number in an array", () => {
+				expect(jsondiff.diff([1], [2])).toBe([
+					{
+						"type": "CHANGE",
+						"path": [1],
+						"old": 1,
+						"new": 2
+					}
+				]);
+			});
+
+			it("identical arrays have no diff", () => {
+				var scaled = createObject("java", "java.math.BigDecimal").init("18.110");
+				expect(jsondiff.diff(["test"], ["test"])).toBe([]);
+				expect(jsondiff.diff([18.11], [scaled])).toBe([]);
+			});
+
 			it("object in array in object", () => {
 				expect(
 					jsondiff.diff(
@@ -44,6 +84,7 @@ component extends="testbox.system.BaseSpec"{
 						{
 							"type": "CHANGE",
 							"path": ["test", 2, "test"],
+							"key": "test",
 							"old": true,
 							"new": false,
 						},
